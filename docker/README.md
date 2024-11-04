@@ -1,21 +1,24 @@
 # Learning Docker
 
-![alt text](image.png)
+## Installing Desktop Docker
+
+
 
 1. Navigate to https://docs.docker.com/desktop/install/windows-install/
+![alt text](image.png)
 2. Click Docker Desktop for Windows - x86_64
 3. Follow the installation window.
-4. Agree to the Docker service agreenment<br><br>
+4. Agree to the Docker service agreenment
 ![alt text](image-1.png)
-5. Use the recomended settings<br><br>
+1. Use the recomended settings
 ![alt text](image-2.png)
-6. Confirm and sign in (Create an account if you dont have one)
-7. Confirm Docker version by adding the following to a bash shell:
+1. Confirm and sign in (Create an account if you dont have one)
+2. Confirm Docker version by adding the following to a bash shell:
 
 ```bash
 docker --version
 ```
-8. On Docker Desktop the status should be green and the newer versions also state "Engine running".<br><br>
+8. On Docker Desktop the status should be green and the newer versions also state "Engine running".
 ![alt text](image-3.png)
 *Note: If the status is not green, you will likely need to choose to "Run as Administrator". If you don't, you will get an error.*
 
