@@ -2,7 +2,21 @@
 
 ## Installing Desktop Docker
 
-
+- [Learning Docker](#learning-docker)
+  - [Installing Desktop Docker](#installing-desktop-docker)
+  - [Differences between virtualisation and containerisation](#differences-between-virtualisation-and-containerisation)
+    - [What is usually included in a Virtualization vs. Containerization](#what-is-usually-included-in-a-virtualization-vs-containerization)
+    - [Contents of a Container vs. Virtual Machine](#contents-of-a-container-vs-virtual-machine)
+  - [Benefits of Virtualization:](#benefits-of-virtualization)
+  - [Benefits of Containerization:](#benefits-of-containerization)
+  - [Benefits of Virtual Machines over Traditional Architecture:](#benefits-of-virtual-machines-over-traditional-architecture)
+  - [Microservices](#microservices)
+    - [What are they?](#what-are-they)
+    - [How are they made possible?](#how-are-they-made-possible)
+    - [Benefits:](#benefits)
+  - [Docker](#docker)
+    - [What is Docker?](#what-is-docker)
+    - [Alternatives to Docker:](#alternatives-to-docker)
 
 1. Navigate to https://docs.docker.com/desktop/install/windows-install/
 ![alt text](image.png)
