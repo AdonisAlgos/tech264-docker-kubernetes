@@ -241,7 +241,7 @@ docker login
 docker push adonisdev/nginx-264
 ```
 
-5. Run the Image from Docker Hub: Now, use docker run to pull and run the image from Docker
+1. Run the Image from Docker Hub: Use docker to pull and run the image from Docker
 
 ```bash
 docker run -d -p 81:80 adonisdev/nginx-264
@@ -337,7 +337,7 @@ Use the following command to start a new container using our custom image:
 docker run -d -p 80:80 tech264-nginx-auto:v1
 ```
 
-1. Once we confirm that the image works, we’ll push the Image to Docker Hub so it can be easily shared and accessed.
+6. Once we confirm that the image works, we’ll push the Image to Docker Hub so it can be easily shared and accessed.
 
 *Log in to Docker Hub (if not already logged in): `docker login`*
 
@@ -347,7 +347,7 @@ Upload the image to your Docker Hub account with the following command:
 docker push adonisdev/tech264-nginx-auto:v1
 ```
 
-6. Share the Docker Run Command Link
+7. Share the Docker Run Command Link
 
 After confirming that the image is on Docker Hub, you can share this command with others to run your custom image
 
