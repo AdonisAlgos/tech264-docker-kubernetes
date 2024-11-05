@@ -1,7 +1,5 @@
 # Learning Docker
 
-## Installing Desktop Docker
-
 - [Learning Docker](#learning-docker)
   - [Installing Desktop Docker](#installing-desktop-docker)
   - [Differences between virtualisation and containerisation](#differences-between-virtualisation-and-containerisation)
@@ -17,10 +15,15 @@
   - [Docker](#docker)
     - [What is Docker?](#what-is-docker)
     - [Alternatives to Docker:](#alternatives-to-docker)
+  - [Docker Commands](#docker-commands)
+  - [Task: Push host-custom-static-webpage container image to Docker Hub](#task-push-host-custom-static-webpage-container-image-to-docker-hub)
+  - [Task: Automate docker image creation using a Dockerfile](#task-automate-docker-image-creation-using-a-dockerfile)
+
+## Installing Desktop Docker
 
 1. Navigate to https://docs.docker.com/desktop/install/windows-install/
 ![alt text](image.png)
-2. Click Docker Desktop for Windows - x86_64
+2. Click Docker Desktop for **Windows - x86_64**
 3. Follow the installation window.
 4. Agree to the Docker service agreenment
 ![alt text](image-1.png)
@@ -81,6 +84,8 @@ docker --version
 
 ### How are they made possible?
 
+* **Container**
+
 * Advancements in Containerization: Tools like Docker enable packaging services with their dependencies, ensuring consistency across environments.
 * Orchestration Platforms: Technologies like Kubernetes manage, scale, and orchestrate containers, making it easier to deploy microservices at scale.
 * DevOps and CI/CD Pipelines: Automated testing and deployment processes allow for rapid and reliable delivery of microservices.
@@ -139,3 +144,213 @@ Success Story Using Docker:
 * By containerizing services, they achieved consistent environments from development to production.
 * Docker enabled rapid scaling of microservices, improved resource utilization, and faster deployment times.
 * The transition to Docker contributed to increased developer productivity and operational efficiency.
+
+## Docker Commands
+
+Display images (Size, created date, name tag, etc.)
+
+```bash
+docker images
+```
+
+![alt text](image-4.png)
+
+Runs the hello-world container. The first time this is run if the container isn't stored locally it will fetch it from Docker-HUB (Registry):
+
+```bash
+docker run hello-world
+```
+
+![alt text](image-5.png)
+
+Shows all running containers
+
+```bash
+docker ps
+```
+
+Downlaoding the latest version of nginx and will run it on port 80 in your localhost
+
+```bash
+docker run -d -p 80:80 nginx
+```
+
+![alt text](image-7.png)
+
+Stops a running process by specifying the docker proccess ID or name.
+
+```bash
+docker stop <container_name_or_id>
+```
+
+Shows all containers whether running or stopped.
+
+```bash
+docker ps -a
+```
+
+Starts a container.
+
+```bash
+docker start <container name>
+```
+
+Use `docker exec` with `-it` to start an interactive shell:
+
+```bash
+docker exec -it <container_id> sh
+```
+
+If you get an *Error response from daemon: No such container: <container_id> try (Windows-Specific: Use winpty) using Git Bash on Windows, winpty may be needed for interactive commands. Set an alias to simplify:
+
+```bash
+alias docker="winpty docker"
+```
+
+Then try again:
+
+```bash
+docker exec -it <container_id> sh
+```
+
+## Task: Push host-custom-static-webpage container image to Docker Hub
+
+Create an image from your running container which is running nginx with the index.html file we already modified in our code-along
+
+1. Commit this container to create an image.
+
+```bash
+docker commit kind_yonath adonisdev/nginx-264
+```
+
+2. Verify the Image. List your images to ensure the new image was created:
+
+```bash
+docker images
+```
+
+3. Login to your docker account by running the below command and following the shell instructions.
+
+```bash
+docker login
+```
+
+4. Push the newly created image to your Docker Hub repository.
+
+```bash
+docker push adonisdev/nginx-264
+```
+
+5. Run the Image from Docker Hub: Now, use docker run to pull and run the image from Docker
+
+```bash
+docker run -d -p 81:80 adonisdev/nginx-264
+```
+
+## Task: Automate docker image creation using a Dockerfile
+
+
+1. Create a New Folder for Your Project
+
+This folder will serve as the working directory for our project. Creating a dedicated folder helps keep all related files organized, making it easier to manage and share:
+
+```bash
+mkdir tech264-mod-nginx-dockerfile
+cd tech264-mod-nginx-dockerfile
+```
+
+2. Create a index.html File
+
+Create an index.html file within this folder that will replace Nginx's default page.
+
+```bash
+nano index.html
+```
+
+Type the below html code:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto; background-color: blue; color: white; font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to tech264!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+```
+
+3. Create a Dockerfile
+
+The Dockerfile is the set of instructions that Docker uses to build your image. It specifies what base image to use, what files to add or replace, and any configuration for the environment.
+
+Inside your project folder, create a file named Dockerfile
+
+```bash
+nano Dockerfile
+```
+
+Add the following contents:
+
+```dockerfile
+# Step 1: Use the official Nginx base image
+FROM nginx:latest
+
+# Step 2: Copy our custom index.html to replace the default Nginx page
+COPY index.html /usr/share/nginx/html/index.html
+
+# Step 3: Expose port 80 so the container can serve HTTP traffic
+EXPOSE 80
+```
+
+4. Build the Image
+
+Now that we have a Dockerfile and a custom index.html, it’s time to build our Docker image.
+
+In the terminal, run the following command in your project directory:
+
+```bash
+docker build -t tech264-nginx-auto:v1 .
+```
+
+5. Run the Container
+
+Once the image is built, we’ll run it to make sure it works as expected.
+
+Use the following command to start a new container using our custom image:
+
+```bash
+docker run -d -p 80:80 tech264-nginx-auto:v1
+```
+
+1. Once we confirm that the image works, we’ll push the Image to Docker Hub so it can be easily shared and accessed.
+
+*Log in to Docker Hub (if not already logged in): `docker login`*
+
+Upload the image to your Docker Hub account with the following command:
+
+```bash
+docker push adonisdev/tech264-nginx-auto:v1
+```
+
+6. Share the Docker Run Command Link
+
+After confirming that the image is on Docker Hub, you can share this command with others to run your custom image
+
+```bash
+docker run -d -p 80:80 adonisdev/tech264-nginx-auto:v1
+```
