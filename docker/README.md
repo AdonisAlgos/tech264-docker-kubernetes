@@ -134,9 +134,13 @@ Docker Objects:
 
 ### How Docker Works (Architecture)
 
-* Users issue commands via the Docker Client, which communicates with the Docker Daemon through a REST API.
-* The Docker Daemon performs tasks such as building images, running containers, and managing networks and storage.
-* Docker uses a layered filesystem and union mounts to efficiently build and distribute container images.
+* **Docker Client**: Users interact with Docker through the Client, which sends commands to the Docker Daemon over a REST API to manage containers and images locally or remotely.
+
+* **Docker Daemon**: Running on the host machine, the Daemon (dockerd) performs tasks like building images, running containers, and managing storage and networks, handling all container lifecycle requests from the Client.
+
+* **Docker Registry**: Docker Registries store and distribute images, with Docker Hub as the default public registry. The Daemon pulls images from a registry if they’re not available locally, ensuring containers have the necessary files.
+
+* **Images and Layered Filesystem**: Docker images use a layered filesystem that builds upon base images with modifications, optimizing storage by reusing layers. Union mounts combine these layers into a single view, enabling efficient storage and distribution.
 
 ![Docker Architecture](./Docker-Architecture.png)
 
@@ -328,7 +332,7 @@ Now that we have a Dockerfile and a custom index.html, it’s time to build our 
 In the terminal, run the following command in your project directory:
 
 ```bash
-docker build -t tech264-nginx-auto:v1 .
+docker build -t adonisdevtech264-nginx-auto:v1 .
 ```
 
 5. Run the Container
