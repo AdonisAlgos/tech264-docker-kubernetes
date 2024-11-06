@@ -15,6 +15,8 @@
   - [Docker](#docker)
     - [What is Docker?](#what-is-docker)
     - [Alternatives to Docker:](#alternatives-to-docker)
+    - [How Docker Works (Architecture)](#how-docker-works-architecture)
+    - [Success Story Using Docker](#success-story-using-docker)
   - [Docker Commands](#docker-commands)
   - [Task: Push host-custom-static-webpage container image to Docker Hub](#task-push-host-custom-static-webpage-container-image-to-docker-hub)
   - [Task: Automate docker image creation using a Dockerfile](#task-automate-docker-image-creation-using-a-dockerfile)
@@ -130,13 +132,15 @@ Docker Objects:
 * Containers: Runnable instances of images that include the application and its environment.
 * Networks and Volumes: Facilitate communication between containers and manage persistent data storage.
 
-How It Works:
+### How Docker Works (Architecture)
 
-* Users issue commands via the Docker Client, which communicates with the Docker Daemon through a REST API over UNIX sockets or network interfaces.
+* Users issue commands via the Docker Client, which communicates with the Docker Daemon through a REST API.
 * The Docker Daemon performs tasks such as building images, running containers, and managing networks and storage.
 * Docker uses a layered filesystem and union mounts to efficiently build and distribute container images.
 
-Success Story Using Docker:
+![Docker Architecture](./Docker-Architecture.png)
+
+### Success Story Using Docker
 
 **Spotify**:
 
