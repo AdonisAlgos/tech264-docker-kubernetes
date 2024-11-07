@@ -17,9 +17,17 @@
     - [Alternatives to Docker:](#alternatives-to-docker)
     - [How Docker Works (Architecture)](#how-docker-works-architecture)
     - [Success Story Using Docker](#success-story-using-docker)
+  - [Docker Compose](#docker-compose)
+    - [Why use it?](#why-use-it)
+    - [How to use it?](#how-to-use-it)
+    - [What do you need to install for it to work?](#what-do-you-need-to-install-for-it-to-work)
+    - [How to store your docker compose file?](#how-to-store-your-docker-compose-file)
+    - [Docker Compose Commands](#docker-compose-commands)
   - [Docker Commands](#docker-commands)
   - [Task: Push host-custom-static-webpage container image to Docker Hub](#task-push-host-custom-static-webpage-container-image-to-docker-hub)
   - [Task: Automate docker image creation using a Dockerfile](#task-automate-docker-image-creation-using-a-dockerfile)
+  - [Task: Run Sparta test app in a container](#task-run-sparta-test-app-in-a-container)
+  - [Task: Use Docker Compose to run app and database containers](#task-use-docker-compose-to-run-app-and-database-containers)
 
 ## Installing Desktop Docker
 
@@ -152,6 +160,40 @@ Docker Objects:
 * By containerizing services, they achieved consistent environments from development to production.
 * Docker enabled rapid scaling of microservices, improved resource utilization, and faster deployment times.
 * The transition to Docker contributed to increased developer productivity and operational efficiency.
+
+## Docker Compose
+
+### Why use it?
+
+Docker Compose simplifies multi-container Docker applications by allowing you to define, run, and manage services in one YAML file, making deployment easier.
+
+### How to use it?
+
+Create a docker-compose.yml file specifying services, networks, and volumes. Use docker-compose commands to manage the application lifecycle.
+
+
+### What do you need to install for it to work?
+Docker Compose, which is included if you have downloaded `Docker Desktop`.
+ 
+### How to store your docker compose file?
+Store `docker-compose.yaml` in the root directory of your project for easy access and version control.
+ 
+### Docker Compose Commands
+ 
+`docker-compose up`: Builds, (re)creates, and starts containers as defined in docker-compose.yml.
+`docker-compose down`: Stops and removes containers, networks, and volumes created by up.
+
+`docker-compose up`: Runs services and outputs logs to the console.
+ 
+`docker-compose up -d`: Runs services in the background.
+ 
+`docker-compose stop`: Stops running containers but keeps the containers and network in place.
+
+`docker-compose ps`: Lists all services defined in `docker-compose.yaml` and shows their status.
+ 
+`docker-compose logs -f`: Shows live logs for all services. Use `-f` (follow) to update logs in real-time.
+
+`docker-compose images`: Lists images used by your Docker Compose services.
 
 ## Docker Commands
 
@@ -319,7 +361,7 @@ Add the following contents:
 FROM nginx:latest
 
 # Step 2: Copy our custom index.html to replace the default Nginx page
-COPY index.html /usr/share/nginx/html/index.html
+COPY index.html /usr/share/nginx/html/
 
 # Step 3: Expose port 80 so the container can serve HTTP traffic
 EXPOSE 80
@@ -332,7 +374,7 @@ Now that we have a Dockerfile and a custom index.html, it’s time to build our 
 In the terminal, run the following command in your project directory:
 
 ```bash
-docker build -t adonisdevtech264-nginx-auto:v1 .
+docker build -t adonisdev/tech264-nginx-auto:v1 .
 ```
 
 5. Run the Container
@@ -362,3 +404,155 @@ After confirming that the image is on Docker Hub, you can share this command wit
 ```bash
 docker run -d -p 80:80 adonisdev/tech264-nginx-auto:v1
 ```
+
+## Task: Run Sparta test app in a container
+
+1. Create a New Folder for Your Project
+
+This folder will serve as the working directory for our project. Creating a dedicated folder helps keep all related files organized, making it easier to manage and share:
+
+```bash
+mkdir tech264-prov-sparta-app-dockerfile
+cd tech264-prov-sparta-app-dockerfile
+```
+
+2. Add the sparta app folder to the project folder
+
+```bash
+cp -r <app_folder_loc> <app_folder_dest_docker_project_folder>
+```
+
+3. Create a Docker file in the project folder with instructions to automate the creation of the Sparta App image.
+
+Create the Dockerfile:
+
+```bash
+nano Dockerfile
+```
+
+Add the following content:
+
+```bash
+# Use the Node.js v20 image
+FROM node:20-alpine3.20
+
+# Add a label to specify metadata, such as the purpose of this image
+LABEL description="Node.js app Docker container for test app"
+
+# Copy the app folder and package.json files to the container
+COPY app /usr/src/app
+
+# Set the working directory inside the container
+WORKDIR /usr/src/app
+
+# Install app dependencies
+RUN npm install
+
+# Expose the port the app will run on
+EXPOSE 3000
+
+# Set the command to run the app
+CMD ["npm", "start"]
+```
+
+4. Run the Dockerfile to create an image.
+
+*Log in to Docker Hub (if not already logged in): `docker login`*
+
+```bash
+docker build -t adonisdev/sparta-test-app:v1 .
+```
+
+5. Run a Docker container from the provissioned app image.
+
+```bash
+docker run -d -p 3000:3000 adonisdev/sparta-test-app:v1
+```
+
+6. Push the image to the Docker Hub to be stored remotely and shared with others.
+
+```bash
+docker push adonisdev/sparta-test-app:v1
+```
+
+## Task: Use Docker Compose to run app and database containers
+
+1. Create a New Folder for Your Project
+
+```bash
+mkdir tech264-docker-compose-app-db
+cd tech264-docker-compose-app-db
+```
+
+2. Create a Docker Compose file to handle the 2 containers app & db
+
+```bash
+nano docker-compose.yml
+```
+
+3. Add the following script:
+
+```yml
+version: '3.8'
+services:
+  mongo:
+    image: mongo:7.0.6           # MongoDB version to match IaC setup
+    ports:
+      - "27017:27017"            # Port mapping for MongoDB
+    volumes:
+      - mongo_data:/data/db      # Data volume for persistence
+  app:
+    image: adonisdev/tech264-prov-sparta-app-auto:v1  # Replace with your actual Node app image name
+    ports:
+      - "3000:3000"             # Port mapping for Node app
+    environment:
+      DB_HOST: "mongodb://mongo:27017/posts"
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:                     # Volume definition for MongoDB data persistence
+```
+
+4. Run the docker-compose yml file
+
+*Log in to Docker Hub (if not already logged in): `docker login`*
+
+```bash
+docker-compose up -d
+```
+
+5. Further Step: Seed the Database
+
+Use the following command to access the container via an interactive shell:
+
+```bash
+docker exec -it <container_id> sh
+```
+
+6. Navigate to the app folder and seed the database
+
+```bash
+node /usr/src/app/seeds/seed.js
+```
+
+7. Alternative Step: Seed the Database
+
+Add the following line of yml syntax into the app service of the Docker Compose file
+
+`command: sh -c "node seeds/seed.js && node app.js"`
+
+Example:
+
+```yml
+  app:
+    image: adonisdev/tech264-prov-sparta-app-auto:v1  # Replace with your actual Node app image name
+    ports:
+      - "3000:3000"             # Port mapping for Node app
+    environment:
+      DB_HOST: "mongodb://mongo:27017/posts"
+    command: sh -c "node seeds/seed.js && node app.js"
+    depends_on:
+      - mongo
+```
+
