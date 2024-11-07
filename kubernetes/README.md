@@ -8,6 +8,10 @@ Kubernetes is needed to manage containerized applications in a clustered environ
 
 ### Benefits of Kubernetes
 
+* **Rollback Changes**
+* **Load-Balancing**
+* **Open-Source**
+* **Self-Healing**
 * **Scalability**: Automatically scales applications up or down based on demand.
 * **High Availability**: Provides self-healing mechanisms like auto-restarting, rescheduling, and replicating containers.
 * **Portability**: Works across various environments—from on-premises to public clouds—ensuring consistent operations.
