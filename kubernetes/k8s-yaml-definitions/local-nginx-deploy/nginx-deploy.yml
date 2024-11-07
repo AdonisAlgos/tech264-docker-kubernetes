@@ -1,0 +1,21 @@
+apiVersion: apps/v1 # specify api to use for deployement
+kind: Deployment # Kind of service/object to create
+metadata:
+  name: nginx-deployment # name the deployement
+spec:
+  selector:
+    matchLabels:
+      app: nginx # Look for this label/tag to match k8 service
+
+  # Create a PeplicaSet with instances/pods
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: adonisdev/nginx-264
+        ports: 
+        - containerPort: 80

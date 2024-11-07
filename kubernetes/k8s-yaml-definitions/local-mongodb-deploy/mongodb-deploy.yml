@@ -1,0 +1,21 @@
+apiVersion: apps/v1 # specify api to use for deployement
+kind: Deployment # Kind of service/object to create
+metadata:
+  name: mongodb-deployment # name the deployement
+spec:
+  selector:
+    matchLabels:
+      app: mongodb # Look for this label/tag to match k8 service
+
+  # Create a PeplicaSet with instances/pods
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:7.0.6
+        ports: 
+        - containerPort: 27017

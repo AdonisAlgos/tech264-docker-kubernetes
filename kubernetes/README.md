@@ -121,3 +121,288 @@ A pod is ephemeral because it is designed to be temporary and can be terminated,
 * Limited customization and control.
 * May include unnecessary components, increasing size.
 * Dependency on maintainer updates and patch timing.
+
+## Using Kubernetes
+
+### Kubernetes Setup
+
+1. Navigate to Docker Desktop
+2. Navigate and select **Settings** > **Kubernetes** > **Enable Kubernetes** > **Apply & Install**
+
+Check if Kubernetes is running `kubectl get all`
+
+### Kubernetes Commands
+
+`kubectl get deploy`: Return deployements
+
+`kubectl get all`: Returns all runing kubernetes processes
+
+`kubectl get pods` Return all pods
+
+`kubectl get replicasets`: Return all replica Sets
+
+``
+
+### Creating Objects: Deployments
+
+1. Create a new file for the deployment
+
+```bash
+nano nginx-deployment.yml
+```
+
+Add the following yml code
+
+```yml
+---
+apiVersion: apps/v1 # specify api to use for deployement
+kind: Deployment # Kind of service/object to create
+metadata:
+  name: nginx-deployment # name the deployement
+spec:
+  selector:
+    matchLabels:
+      app: nginx # Look for this label/tag to match k8 service
+
+  # Create a PeplicaSet with instances/pods
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: adonisdev/nginx-264
+        ports: 
+        - containerPort: 80
+```
+
+3. Check if the deployment object was created:
+
+```bash
+kubectl get deploy
+```
+
+### Creating Objects: Service
+
+1. Creating a service to expose our pods to the outside world
+
+*Node port service uses ports in this range 30000-32768*
+
+2. Creating new file for the service
+
+```bash
+nano nginx-service.yml
+```
+
+Add the following yml code
+
+```yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+  namespace: default
+spec:
+  ports:
+  - nodePort: 30001
+    port: 80
+    targetPort: 80
+  selector:
+    app: nginx # Label to match service to deployment
+  type: NodePort
+```
+
+3. Check if the service object was created:
+
+```bash
+kubectl get services
+```
+
+## Task: K8s deployment of NodeJS Sparta test app
+
+![Kubernetes Architecture](Blank%20diagram%20(3).png)
+
+### Creating the application
+
+#### Step 1: Create the deployement
+
+1. Create a project folder to deploy the kubernetes cluster
+
+```bash
+mkdir local-sparta-app-deploy
+cd local-sparta-app-deploy
+```
+
+2. Create a file to provision the deployement
+
+```bash
+nano sparta-app-deploy.yml
+```
+
+Add the following contents:
+
+```yml
+---
+apiVersion: apps/v1 # specify api to use for deployement
+kind: Deployment # Kind of service/object to create
+metadata:
+  name: sparta-app-deployment # name the deployement
+spec:
+  selector:
+    matchLabels:
+      app: sparta-app # Look for this label/tag to match k8 service
+
+  # Create a PeplicaSet with instances/pods
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: sparta-app
+    spec:
+      containers:
+      - name: sparta-app
+        image: adonisdev/tech264-prov-sparta-app-auto:v1
+        ports: 
+        - containerPort: 3000
+        env:
+          - name: DB_HOST
+            value: "mongodb://mongodb-svc:27017/posts"
+```
+
+3. Run the script to create the deployement
+
+```bash
+kubectl create -f sparta-app-deploy.yml
+```
+
+#### Step 2: Create the Service
+
+1. Create a project folder to provision the service for the kubernetes cluster
+
+```bash
+mkdir local-sparta-app-service
+cd local-sparta-app-service
+```
+
+2. Create a file to provision the service
+
+```bash
+nano sparta-app-service.yml
+```
+
+Add the following contents:
+
+```yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sparta-app-svc
+  namespace: default
+spec:
+  ports:
+  - nodePort: 30001
+    port: 80
+    targetPort: 3000
+  selector:
+    app: sparta-app # Label to match service to deployment
+  type: NodePort
+```
+
+3. Run the script to create the service
+
+```bash
+kubectl create -f sparta-app-service.yml
+```
+
+### Creating the database
+
+#### Step 1: Create the deployement
+
+1. Create a project folder to deploy the kubernetes cluster
+
+```bash
+mkdir local-mongodb-deploy
+cd local-mongodb-deploy
+```
+
+2. Create a file to provision the deployement
+
+```bash
+nano mongodb-deploy.yml
+```
+
+Add the following contents:
+
+```yml
+apiVersion: apps/v1 # specify api to use for deployement
+kind: Deployment # Kind of service/object to create
+metadata:
+  name: mongodb-deployment # name the deployement
+spec:
+  selector:
+    matchLabels:
+      app: mongodb # Look for this label/tag to match k8 service
+
+  # Create a PeplicaSet with instances/pods
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:7.0.6
+        ports:
+        - containerPort: 27017
+```
+
+3. Run the script to create the deployement
+
+```bash
+kubectl create -f mongo-deploy.yml
+```
+
+#### Step 2: Create the Service
+
+1. Create a project folder to provision the service for the kubernetes cluster
+
+```bash
+mkdir local-mongodb-service
+cd local-mongodb-service
+```
+
+2. Create a file to provision the service
+
+```bash
+nano mongodb-service.yml
+```
+
+Add the following contents:
+
+```yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-svc
+  namespace: default
+spec:
+  ports:
+  - nodePort: 30002
+    port: 27017
+    targetPort: 27017
+  selector:
+    app: mongodb # Label to match service to deployment
+  type: NodePort
+```
+
+3. Run the script to create the service
+
+```bash
+kubectl create -f mongodb-service.yml
+```
