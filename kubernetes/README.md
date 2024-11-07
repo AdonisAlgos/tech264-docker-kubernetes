@@ -83,8 +83,8 @@ A cluster in Kubernetes is a group of machines (nodes) that work together to run
 Kubernetes objects are persistent entities in the Kubernetes system that represent the desired state of resources and workloads in the cluster. Common ones include:
 
 * **Pods**: The smallest deployable unit, representing mainly one (can more containers).
-  * Pods have their own IP Adresses
-  * Pods are ephemeral as it is designed to be temporary
+  * Pods have their own IP Adresses.
+  * Pods are ephemeral as they are designed to be temporary.
 * **Deployments**: Manages the deployment and scaling of pods, ensuring the desired number of replicas.
 * **ReplicaSets**: Maintains a specified number of identical pod replicas for availability and resilience.
 * **Services**: Exposes a set of pods as a network service, allowing external or internal access.
@@ -92,7 +92,9 @@ Kubernetes objects are persistent entities in the Kubernetes system that represe
 * **ConfigMaps and Secrets**: Store configuration data and sensitive information, respectively, to be used by pods.
   * Secrets encrypt keys in base64 which easily decrypted.
 * **Volume**: Important to store and persist data accross pods.
-* **Namespace**: Logical way to group resources for an application
+* **Namespace**: Logical way to group resources for an application.
+
+![alt text](image-1.png)
 
 ### What Does it Mean a Pod is "Ephemeral"?
 A pod is ephemeral because it is designed to be temporary and can be terminated, rescheduled, or replaced by Kubernetes at any time. Pods are not persistent and may be recreated on other nodes, leading to potential loss of state.
@@ -100,10 +102,10 @@ A pod is ephemeral because it is designed to be temporary and can be terminated,
 ### How to Mitigate Security Concerns with Containers
 * **Use Maintained Images**: Base images regularly updated by trusted sources reduce vulnerabilities.
 * **Implement Image Scanning**: Use tools to scan images for vulnerabilities before deployment.
-* **Limit Container Privileges**: Run containers with the least privileges necessary.
+* **Limit Container Privileges (No-root privileges)**: Run containers with the least privileges necessary.
 * **Use Network Policies**: Restrict pod-to-pod communication to only what’s required.
 * **Regularly Update Dependencies**: Keep containers and dependencies updated.
-* **Enable Runtime Security**: Use monitoring tools to detect unusual container behavior.
+* **Enable Runtime Security**: Use monitoring tools to detect unusual container behavior (logging).
 
 ### Maintained Images
 
@@ -113,6 +115,7 @@ A pod is ephemeral because it is designed to be temporary and can be terminated,
 * Regular updates and security patches.
 * Pre-configured with best practices.
 * Reduced maintenance burden.
+* Upto date documentation.
 
 **Cons**:
 * Limited customization and control.
