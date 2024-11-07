@@ -48,6 +48,8 @@ Kubernetes architecture is based on a master-worker model designed for orchestra
 
 ### What is a Cluster?
 
+* Made up of at least 1 **Master Node** and 1 **Worker Node**.
+
 A cluster in Kubernetes is a group of machines (nodes) that work together to run and manage containerized applications. It includes a control plane for orchestration and worker nodes for running workloads.
 
 ### Master vs. Worker Nodes
