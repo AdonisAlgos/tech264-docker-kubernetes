@@ -46,6 +46,8 @@ Kubernetes architecture is based on a master-worker model designed for orchestra
 
 ![alt text](image.png)
 
+*Note: If you would like to run a small Kubernetes service for testing you can run Minicube*
+
 ### What is a Cluster?
 
 * Made up of at least 1 **Master Node** and 1 **Worker Node**.
@@ -62,6 +64,7 @@ A cluster in Kubernetes is a group of machines (nodes) that work together to run
 
 * **Managed Service (e.g., GKE, EKS, AKS)**
   * **Pros**: Reduces operational overhead, automated updates and scaling, easy integrations, and high availability by default.
+  * **Especially with Azure (AKS)**: Only charged for the Worker Nodes
   * **Cons**: Higher costs, limited control over infrastructure, and potential vendor lock-in.
 
 * **Launching Your Own (Self-managed)**
