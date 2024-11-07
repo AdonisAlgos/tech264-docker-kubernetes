@@ -56,18 +56,22 @@ A cluster in Kubernetes is a group of machines (nodes) that work together to run
 
 ### Master vs. Worker Nodes
 
-* **Master Nodes**: Manage the cluster, making scheduling and orchestration decisions, and maintain the desired state. They host components like the API server, controller manager, scheduler, and etcd.
+* **Master Nodes (works on the Control Plane)**: Manage the cluster, making scheduling and orchestration decisions, and maintain the desired state. They host components like the API server, controller manager, scheduler, and etcd.
 
-* **Worker Nodes**: Run application workloads in containers within pods, managed by the control plane. Each worker has components like the kubelet, kube-proxy, and container runtime.
+* **Worker Nodes (work on the Data Plane)**: Run application workloads in containers within pods, managed by the control plane. Each worker has components like the kubelet, kube-proxy, and container runtime.
 
 ### Pros and Cons of Using Managed Service vs. Launching Your Own
 
 * **Managed Service (e.g., GKE, EKS, AKS)**
   * **Pros**: Reduces operational overhead, automated updates and scaling, easy integrations, and high availability by default.
-  * **Especially with Azure (AKS)**: Only charged for the Worker Nodes
+    * **Especially with Azure (AKS)**: Only charged for the Worker Nodes
+
   * **Cons**: Higher costs, limited control over infrastructure, and potential vendor lock-in.
 
 * **Launching Your Own (Self-managed)**
+
+*Recomended to have a minimum of 3 Master Nodes - Redundancy*
+
   * **Pros**: Full control over configuration, infrastructure choice, and customization; potentially lower costs at scale.
   * **Cons**: Requires significant operational knowledge, higher maintenance, and manual scaling and updates.
 
@@ -78,11 +82,17 @@ A cluster in Kubernetes is a group of machines (nodes) that work together to run
 ### Kubernetes Objects
 Kubernetes objects are persistent entities in the Kubernetes system that represent the desired state of resources and workloads in the cluster. Common ones include:
 
-* **Pods**: The smallest deployable unit, representing one or more containers.
+* **Pods**: The smallest deployable unit, representing mainly one (can more containers).
+  * Pods have their own IP Adresses
+  * Pods are ephemeral as it is designed to be temporary
 * **Deployments**: Manages the deployment and scaling of pods, ensuring the desired number of replicas.
 * **ReplicaSets**: Maintains a specified number of identical pod replicas for availability and resilience.
 * **Services**: Exposes a set of pods as a network service, allowing external or internal access.
+  * Handles/Worries the IP addresses to allow communication between pods.
 * **ConfigMaps and Secrets**: Store configuration data and sensitive information, respectively, to be used by pods.
+  * Secrets encrypt keys in base64 which easily decrypted.
+* **Volume**: Important to store and persist data accross pods.
+* **Namespace**: Logical way to group resources for an application
 
 ### What Does it Mean a Pod is "Ephemeral"?
 A pod is ephemeral because it is designed to be temporary and can be terminated, rescheduled, or replaced by Kubernetes at any time. Pods are not persistent and may be recreated on other nodes, leading to potential loss of state.
