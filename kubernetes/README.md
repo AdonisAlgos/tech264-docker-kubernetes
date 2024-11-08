@@ -127,21 +127,55 @@ A pod is ephemeral because it is designed to be temporary and can be terminated,
 ### Kubernetes Setup
 
 1. Navigate to Docker Desktop
-2. Navigate and select **Settings** > **Kubernetes** > **Enable Kubernetes** > **Apply & Install**
+2. Navigate and select **Settings** > **Kubernetes** > **Enable Kubernetes** > **Apply and restart**
+
+![alt text](image-2.png)
 
 Check if Kubernetes is running `kubectl get all`
 
 ### Kubernetes Commands
 
-`kubectl get deploy`: Return deployements
+Retrieves a list of all deployments in the current namespace, showing essential details like the deployment name, desired replicas, available replicas, and current status.
 
-`kubectl get all`: Returns all runing kubernetes processes
+```bash
+kubectl get deploy`
+```
+Retrieves all running resources in the current namespace, including pods, services, deployments, replica sets, daemon sets, and more. This provides an overview of 
+all active components within the namespace.
 
-`kubectl get pods` Return all pods
+```bash
+kubectl get all`
+```
 
-`kubectl get replicasets`: Return all replica Sets
+Lists all pods in the current namespace, including information about each pod's status, restart count, and age.
 
-``
+```bash
+kubectl get pods
+```
+
+Retrieves all replica sets in the current namespace, displaying the number of replicas and status information. Replica sets ensure that a specified number of pod replicas are running at any given time.
+
+```bash
+kubectl get replicasets
+```
+
+Creates the Kubernetes resource(s) specified in a YAML file, like pods, deployments, services, etc. This command only creates the resources if they do not already exist.
+
+```bash
+kubectl create -f <file.yaml>
+```
+
+Applies the configuration specified in a YAML file to an existing resource or creates it if it doesn’t exist. This command is ideal for making updates, as it compares the current configuration with the specified file and updates only the differences.
+
+```bash
+kubectl apply -f <file.yaml>
+```
+
+Deletes the Kubernetes resource(s) defined in the YAML file, removing the specific resource configurations and any associated pods, services, or other resources.
+
+```bash
+kubectl delete -f <file.yaml>
+```
 
 ### Creating Objects: Deployments
 
