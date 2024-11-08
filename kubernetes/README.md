@@ -440,3 +440,49 @@ spec:
 ```bash
 kubectl create -f mongodb-service.yml
 ```
+
+### Step 3: Seeding the database
+
+1. Open the application deploy yml script in a text editor
+
+```bash
+nano <file.yaml>
+```
+
+2. Add the following line od code to seed the database: `command: ["sh", "-c", "node /usr/src/app/seeds/seed.js && exec npm start"]`
+
+Example:
+
+```bash
+apiVersion: apps/v1 # specify api to use for deployement
+kind: Deployment # Kind of service/object to create
+metadata:
+  name: sparta-app-deployment # name the deployement
+spec:
+  selector:
+    matchLabels:
+      app: sparta-app # Look for this label/tag to match k8 service
+
+  # Create a PeplicaSet with instances/pods
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: sparta-app
+    spec:
+      containers:
+      - name: sparta-app
+        image: adonisdev/tech264-prov-sparta-app-auto:v1
+        command: ["sh", "-c", "node /usr/src/app/seeds/seed.js && exec npm start"]
+        ports:
+        - containerPort: 3000
+        env:
+          - name: DB_HOST
+            value: "mongodb://mongodb-svc:27017/posts"
+```
+
+3. Apply the file change to re-congigure all pods
+
+```bash
+kubectl apply -f <file.yaml>
+```

@@ -17,6 +17,7 @@ spec:
       containers:
       - name: sparta-app
         image: adonisdev/tech264-prov-sparta-app-auto:v1
+        command: ["sh", "-c", "node /usr/src/app/seeds/seed.js && exec npm start"]
         ports: 
         - containerPort: 3000
         env:
