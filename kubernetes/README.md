@@ -427,7 +427,7 @@ metadata:
   namespace: default
 spec:
   ports:
-  - nodePort: 30002
+  - protocol: TCP
     port: 27017
     targetPort: 27017
   selector:
@@ -441,7 +441,7 @@ spec:
 kubectl create -f mongodb-service.yml
 ```
 
-### Step 3: Seeding the database
+### Step 3: Seeding the database: Method 1
 
 1. Open the application deploy yml script in a text editor
 
@@ -486,3 +486,133 @@ spec:
 ```bash
 kubectl apply -f <file.yaml>
 ```
+
+### Step 3: Seeding the database (Manual Approach): Method 2
+
+1. Connect to a pod via an interactive shell session
+
+```bash
+wimpty kubectl exec -it <node_name> -- sh
+```
+
+2. Run the seeding command
+
+```bash
+node seeds/seed.jscd
+```
+
+## Task: Create 2-tier deployment with PV for database
+
+### Step 1: Create the Persistent Volume (PV)
+
+1. Create a project folder to provision the Persistant Volume (PV) for the kubernetes cluster
+
+```bash
+mkdir local-pv-deploy
+cd local-pv-deploy
+```
+
+2. Create a file to provision the PV
+
+```bash
+nano mongo-pv.yaml
+```
+
+3. Add the following yml code to provision the PV
+
+```yml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongo-pv
+spec:
+  capacity:
+    storage: 100Mi  # Adjust this as needed, don't allocate too much storage
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/mongo"  # Path on the host (use this only for local development)
+```
+
+4. Apply the file change to create the PV
+
+```bash
+kubectl create -f mongo-pv.yaml
+```
+
+### Step 2: Create the Persistent Volume Claim (PVC)
+
+1. Create a project folder to provision the Persistant Volume Claim (PV) for the kubernetes cluster
+
+```bash
+mkdir local-pvc-deploy
+cd local-pvc-deploy
+```
+
+2. Create a file to provision the PVC
+
+```bash
+nano mongo-pvc.yaml
+```
+
+3. Add the following yml code to provision the PVC
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi  # Match this with the PV storage capacity
+```
+
+4. Run the file change to create the PVC
+
+```bash
+kubectl create -f mongo-pvc.yaml
+```
+
+### Step 3: Create the MongoDB Deployment with the PVC
+
+Adjust the previous Database Setup to include the following pv & pvc references and run all remaining components.
+
+```yaml
+apiVersion: apps/v1 # specify api to use for deployement
+kind: Deployment # Kind of service/object to create
+metadata:
+  name: mongodb-deployment # name the deployement
+spec:
+  selector:
+    matchLabels:
+      app: mongodb # Look for this label/tag to match k8 service
+
+  # Create a PeplicaSet with instances/pods
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:7.0.6
+        ports:
+        - containerPort: 27017
+        
+        # Added code for PV & PVC links
+        volumeMounts:
+            - mountPath: "/data/db"
+              name: mongo-storage
+      volumes:
+        - name: mongo-storage
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+```
+
+This setup should allow your MongoDB data to persist between pod or deployment restarts and confirm data persistence on the /posts page.
+
+
