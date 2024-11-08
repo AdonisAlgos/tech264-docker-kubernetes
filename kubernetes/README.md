@@ -615,4 +615,144 @@ spec:
 
 This setup should allow your MongoDB data to persist between pod or deployment restarts and confirm data persistence on the /posts page.
 
+## Task: Research types of autoscaling with K8s
+
+1. **Horizontal Pod Autoscaler (HPA)**
+
+* Function: Scales the number of pods in a deployment, replica set, or stateful set based on CPU or memory usage or custom metrics.
+* Metrics: Typically, HPA uses metrics like CPU or memory consumption by default. Custom metrics can also be configured.
+* Example: If the CPU usage across all pods in a deployment reaches a specified threshold (e.g., 80%), HPA can scale out by adding more pods to distribute the load.
+
+2. **Vertical Pod Autoscaler (VPA)**
+  
+* Function: Adjusts the resource requests (CPU and memory) for individual containers in pods, helping to right-size the pod's resources as workload demands change.
+* Use Case: Useful for applications with unpredictable resource usage patterns, VPA can increase or decrease the allocated resources (e.g., CPU or memory) as needed without adding or removing pods.
+* Behavior: Typically restarts the pod to apply the new resource limits, so it's often used in cases where downtime is acceptable.
+
+3. **Cluster Autoscaler**
+  
+* Function: Scales the number of nodes in a Kubernetes cluster up or down based on the scheduling needs of pods.
+* Usage: Works in tandem with cloud providers (like AWS, GCP, or Azure) to automatically provision or deprovision virtual machines (VMs) based on pending or underutilized pods.
+* Example: If new pods can't be scheduled due to insufficient resources, Cluster Autoscaler can add a node to the cluster. Conversely, if nodes are underutilized, it can terminate them to save costs.
+
+4. **KEDA (Kubernetes Event-Driven Autoscaling)**
+
+* Function: Allows event-driven autoscaling for Kubernetes workloads.
+* Use Case: Scales workloads based on external event sources or metrics like message queues (Kafka, RabbitMQ), databases, or custom events, rather than just traditional CPU/memory usage.
+* Example: Scaling up pods in response to a spike in message counts in a queue (e.g., from an Azure Service Bus or AWS SQS) to handle the increased workload.
+Choosing Autoscaling Strategies in Kubernetes
+
+**For a comprehensive autoscaling setup, many organizations combine these autoscaling types:**
+
+* HPA and Cluster Autoscaler often work together to respond to both pod-level and node-level scaling needs.
+* KEDA can complement HPA by enabling scaling based on custom event triggers.
+
+## Task: Use Horizontal Pod Autoscaler (HPA) to scale the app
+
+### Step 1: Setup the Metrics server
+
+The Metrics Server is essential in Kubernetes for gathering real-time CPU and memory usage data from nodes and pods across the cluster. This data enables components like the Horizontal Pod Autoscaler (HPA) to make informed scaling decisions based on actual resource usage, helping Kubernetes automatically adjust the number of pod replicas to meet demand. Without the Metrics Server, the HPA and kubectl top commands cannot access resource metrics, making it impossible to monitor or autoscale applications based on CPU or memory utilization.
+
+1. Deploy Metrics Server
+
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+* **Purpose**: This command installs the metrics-server in your Kubernetes cluster by applying the latest components file from the Kubernetes metrics-server repository.
+* **Explanation**: The metrics-server is a cluster-wide aggregator of resource usage data, like CPU and memory. It’s necessary for features such as the Horizontal Pod Autoscaler (HPA) to function, as it collects resource metrics from each node in the cluster.
+
+2. Check Metrics Server Logs
+
+```bash
+kubectl logs -n kube-system deployment/metrics-server
+```
+
+* **Purpose**: This retrieves the logs for the metrics-server deployment.
+* **Explanation**: Viewing the logs can help diagnose any issues with metrics-server after deployment. Common issues include TLS errors, which can prevent metrics-server from gathering data from kubelets on the nodes.
+
+3. Verify Metrics Server Pod Status
+
+```bash
+kubectl get pods -n kube-system -l k8s-app=metrics-server
+```
+
+* **Purpose**: This command checks the status of the metrics-server pods in the kube-system namespace.
+* **Explanation**: The -l k8s-app=metrics-server filter helps in locating the specific pods that are part of the metrics-server application. This ensures that the metrics-server is up and running correctly and can start collecting metrics data from the nodes.
+
+4. Patch Metrics Server for Insecure TLS Communication
+
+```bash
+kubectl patch deployment metrics-server -n kube-system --type='json' -p='[   {     "op": "add",     "path": "/spec/template/spec/containers/0/args/-",     "value": "--kubelet-insecure-tls"   } ]'
+```
+
+* **Purpose**: This patches the metrics-server deployment to add the --kubelet-insecure-tls argument.
+* **Explanation**: The --kubelet-insecure-tls flag allows metrics-server to skip TLS certificate verification when connecting to the kubelets on each node. This may be necessary if there are certificate verification issues or if the kubelets don't have fully configured certificates. This command modifies the deployment to allow metrics-server to function in such environments.
+
+### Step 2: Load Test the Application
+
+**Note: To load test with Apache Benchmark (AB) on Windows, you need to use it through Windows Subsystem for Linux (WSL) or run it on a separate Linux-based environment, as AB cannot be directly installed on Windows.**
+
+1. Set Up WSL (if not already installed)
+
+    Open PowerShell as Administrator and run the following command to enable WSL:
+
+    ```powershell
+    wsl --install
+    ```
+2. Install Ubuntu:
+
+    * Open the Microsoft Store and search for Ubuntu (or another preferred Linux distribution) to install it on WSL. Once installed, open the Ubuntu app to set it up.
+    * Follow the on-screen instructions to create a username and password for the Linux environment.
+
+3.  Install Apache Benchmark (ab) on WSL
+
+    Run this command to ensure you're working with the latest package list:
+    ```powershell
+    sudo apt update
+    ```
+
+4. Install Apache2-utils:
+  
+    ```powershell
+    sudo apt install apache2-utils
+    ```
+5. Verify the Installation:
+
+    ```powershell
+    ab -V
+    ```
+6. Run a Load Test with ab for the Kubernetes application.
+
+    ```powershell
+    ab -n 20000 -c 200 http://localhost:30003/
+    ```
+
+    * **Purpose**: This command uses Apache Benchmark (ab) to simulate a load test by sending 20,000 requests with a concurrency of 200 requests to the application running at localhost:30003.
+    * **Explanation**: This load test helps in understanding how the application and the metrics-server handle heavy traffic, simulating real-world usage under high load. This test will help ensure the metrics-server is able to track and report on resource usage effectively under load.
+
+### Step 3: Monitor the Kubernetes Cluster.
+
+  While ab runs the load test, use these kubectl commands to watch how your Kubernetes application scales in real-time:
+
+  * This command is used to monitor the Horizontal Pod Autoscaler (HPA) in real-time.
+
+    * `kubectl get hpa`: This part retrieves the current status of the Horizontal Pod Autoscaler for any deployments or pods that have an HPA configured.
+    * `-w (watch)`: The -w flag tells kubectl to continuously watch for and display updates to the HPA status.
+
+    ```bash
+    kubectl get hpa -w
+    ```
+
+  * This command is used to monitor the status of all pods in real-time.
+
+    * `kubectl get pods`: This part lists the current status of all pods in the cluster (or in a specific namespace if specified).
+    * `-w (watch)`: The -w flag makes this command continuously watch for changes to the pod status in real time.
+
+    ```bash
+    kubectl get pods -w
+    ```
+
+  ![alt text](image-3.png)
+
 

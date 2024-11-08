@@ -23,3 +23,8 @@ spec:
         env:
         - name: DB_HOST
           value: "mongodb://mongodb-svc:27017/posts"
+        resources:
+          requests:
+            cpu: 50m  # Minimum CPU guaranteed to each pod
+          limits:
+            cpu: 250m  # Maximum CPU each pod can use
