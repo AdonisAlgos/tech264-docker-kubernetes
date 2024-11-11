@@ -730,39 +730,39 @@ The Metrics Server is essential in Kubernetes for gathering real-time CPU and me
 
 1. Deploy Metrics Server
 
-```bash
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-```
+    ```bash
+    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+    ```
 
-* **Purpose**: This command installs the metrics-server in your Kubernetes cluster by applying the latest components file from the Kubernetes metrics-server repository.
-* **Explanation**: The metrics-server is a cluster-wide aggregator of resource usage data, like CPU and memory. It’s necessary for features such as the Horizontal Pod Autoscaler (HPA) to function, as it collects resource metrics from each node in the cluster.
+   * **Purpose**: This command installs the metrics-server in your Kubernetes cluster by applying the latest components file from the Kubernetes metrics-server repository.
+   * **Explanation**: The metrics-server is a cluster-wide aggregator of resource usage data, like CPU and memory. It’s necessary for features such as the Horizontal Pod Autoscaler (HPA) to function, as it collects resource metrics from each node in the cluster.
 
 2. Check Metrics Server Logs
 
-```bash
-kubectl logs -n kube-system deployment/metrics-server
-```
+    ```bash
+    kubectl logs -n kube-system deployment/metrics-server
+    ```
 
-* **Purpose**: This retrieves the logs for the metrics-server deployment.
-* **Explanation**: Viewing the logs can help diagnose any issues with metrics-server after deployment. Common issues include TLS errors, which can prevent metrics-server from gathering data from kubelets on the nodes.
+   * **Purpose**: This retrieves the logs for the metrics-server deployment.
+   * **Explanation**: Viewing the logs can help diagnose any issues with metrics-server after deployment. Common issues include TLS errors, which can prevent metrics-server from gathering data from kubelets on the nodes.
 
 3. Verify Metrics Server Pod Status
 
-```bash
-kubectl get pods -n kube-system -l k8s-app=metrics-server
-```
+    ```bash
+    kubectl get pods -n kube-system -l k8s-app=metrics-server
+    ```
 
-* **Purpose**: This command checks the status of the metrics-server pods in the kube-system namespace.
-* **Explanation**: The -l k8s-app=metrics-server filter helps in locating the specific pods that are part of the metrics-server application. This ensures that the metrics-server is up and running correctly and can start collecting metrics data from the nodes.
+   * **Purpose**: This command checks the status of the metrics-server pods in the kube-system namespace.
+   * **Explanation**: The -l k8s-app=metrics-server filter helps in locating the specific pods that are part of the metrics-server application. This ensures that the metrics-server is up and running correctly and can start collecting metrics data from the nodes.
 
 4. Patch Metrics Server for Insecure TLS Communication
 
-```bash
-kubectl patch deployment metrics-server -n kube-system --type='json' -p='[   {     "op": "add",     "path": "/spec/template/spec/containers/0/args/-",     "value": "--kubelet-insecure-tls"   } ]'
-```
+    ```bash
+    kubectl patch deployment metrics-server -n kube-system --type='json' -p='[   {     "op": "add",     "path": "/spec/template/spec/containers/0/args/-",     "value": "--kubelet-insecure-tls"   } ]'
+    ```
 
-* **Purpose**: This patches the metrics-server deployment to add the --kubelet-insecure-tls argument.
-* **Explanation**: The --kubelet-insecure-tls flag allows metrics-server to skip TLS certificate verification when connecting to the kubelets on each node. This may be necessary if there are certificate verification issues or if the kubelets don't have fully configured certificates. This command modifies the deployment to allow metrics-server to function in such environments.
+   * **Purpose**: This patches the metrics-server deployment to add the --kubelet-insecure-tls argument.
+   * **Explanation**: The --kubelet-insecure-tls flag allows metrics-server to skip TLS certificate verification when connecting to the kubelets on each node. This may be necessary if there are certificate verification issues or if the kubelets don't have fully configured certificates. This command modifies the deployment to allow metrics-server to function in such environments.
 
 ### Step 3: Load Test the Application
 
