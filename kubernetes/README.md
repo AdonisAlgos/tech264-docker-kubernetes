@@ -649,7 +649,82 @@ Choosing Autoscaling Strategies in Kubernetes
 
 ## Task: Use Horizontal Pod Autoscaler (HPA) to scale the app
 
-### Step 1: Setup the Metrics server
+### Step 1: Creating and configuring the Horizontal Pod Autoscaler (HPA)
+
+1. Deployment Configuration (deployment.yaml)
+
+    This configuration file creates a Deployment for the sparta-app, specifying the number of replicas, resource limits, and other essential details to control the application's deployment in the Kubernetes cluster.
+
+    ```yml
+    apiVersion: apps/v1  # Specifies the Kubernetes API version for deployment
+    kind: Deployment     # Defines the object type as a Deployment
+    metadata:
+      name: sparta-app-deployment  # Names the deployment "sparta-app-deployment"
+    spec:
+      selector:
+        matchLabels:
+          app: sparta-app  # Matches pods with the label "app: sparta-app" to associate with this deployment
+
+      replicas: 3  # Number of pod replicas to start initially
+      template:
+        metadata:
+          labels:
+            app: sparta-app  # Labels the pod instances for service discovery and selection
+        spec:
+          containers:
+          - name: sparta-app  # Names the container "sparta-app"
+            image: adonisdev/tech264-prov-sparta-app-auto:v1  # Specifies the container image to deploy
+            ports:
+            - containerPort: 3000  # Exposes port 3000 on the container
+            env:
+            - name: DB_HOST
+              value: "mongodb://mongodb-svc:27017/posts"  # Sets environment variable for the database connection
+            resources:
+              requests:
+                cpu: 50m  # Minimum CPU guaranteed to each pod (50 millicores)
+              limits:
+                cpu: 250m  # Maximum CPU each pod can use (250 millicores)
+    ```
+
+    Explanation of Key Fields:
+
+    * **replicas**: Sets the initial number of pod replicas to 3, providing fault tolerance and load distribution.
+    * **resources.requests**: Requests a minimum of 50 millicores (50m) CPU per pod, ensuring each pod has enough resources to function under baseline load.
+    * **resources.limits**: Limits CPU usage to 250 millicores (250m) per pod to prevent excessive CPU consumption, which helps in efficient autoscaling and resource allocation.
+    * **env**: Sets environment variables, here DB_HOST for connecting to the MongoDB service within the cluster.
+
+2. Horizontal Pod Autoscaler (HPA) Configuration (hpa.yml)
+
+    This configuration file defines the Horizontal Pod Autoscaler for sparta-app-deployment, allowing Kubernetes to automatically scale the deployment based on CPU usage.
+
+    ```yaml
+    apiVersion: autoscaling/v2  # Specifies the Kubernetes API version for autoscaling
+    kind: HorizontalPodAutoscaler  # Defines the object as an HPA
+    metadata:
+      name: sparta-app-hpa  # Names the HPA "sparta-app-hpa"
+    spec:
+      scaleTargetRef:
+        apiVersion: apps/v1  # Specifies the API version of the target resource
+        kind: Deployment  # Target type is a Deployment
+        name: sparta-app-deployment  # Name of the deployment to scale, matching "sparta-app-deployment"
+      minReplicas: 2  # Minimum number of pod replicas the HPA maintains
+      maxReplicas: 10  # Maximum number of replicas the HPA can scale up to
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50  # Target average CPU utilization at 50%
+    ```
+
+    Explanation of Key Fields:
+
+    * **scaleTargetRef**: Specifies the target deployment (sparta-app-deployment) to scale based on CPU metrics.
+    * **minReplicas and maxReplicas**: Set minimum and maximum limits for scaling, with at least 2 replicas always active and scaling up to 10 replicas if needed.
+    * **metrics.target.averageUtilization**: Sets a target CPU utilization of 50%. The HPA will try to maintain this average across all pods in the deployment, adding or removing replicas as CPU usage fluctuates.
+
+### Step 2: Setup the Metrics server
 
 The Metrics Server is essential in Kubernetes for gathering real-time CPU and memory usage data from nodes and pods across the cluster. This data enables components like the Horizontal Pod Autoscaler (HPA) to make informed scaling decisions based on actual resource usage, helping Kubernetes automatically adjust the number of pod replicas to meet demand. Without the Metrics Server, the HPA and kubectl top commands cannot access resource metrics, making it impossible to monitor or autoscale applications based on CPU or memory utilization.
 
@@ -689,7 +764,7 @@ kubectl patch deployment metrics-server -n kube-system --type='json' -p='[   {  
 * **Purpose**: This patches the metrics-server deployment to add the --kubelet-insecure-tls argument.
 * **Explanation**: The --kubelet-insecure-tls flag allows metrics-server to skip TLS certificate verification when connecting to the kubelets on each node. This may be necessary if there are certificate verification issues or if the kubelets don't have fully configured certificates. This command modifies the deployment to allow metrics-server to function in such environments.
 
-### Step 2: Load Test the Application
+### Step 3: Load Test the Application
 
 **Note: To load test with Apache Benchmark (AB) on Windows, you need to use it through Windows Subsystem for Linux (WSL) or run it on a separate Linux-based environment, as AB cannot be directly installed on Windows.**
 
@@ -707,16 +782,16 @@ kubectl patch deployment metrics-server -n kube-system --type='json' -p='[   {  
 
 3.  Install Apache Benchmark (ab) on WSL
 
-    Run this command to ensure you're working with the latest package list:
-    ```powershell
-    sudo apt update
-    ```
+      Run this command to ensure you're working with the latest package list:
+      ```powershell
+      sudo apt update
+      ```
 
 4. Install Apache2-utils:
   
-    ```powershell
-    sudo apt install apache2-utils
-    ```
+      ```powershell
+      sudo apt install apache2-utils
+      ```
 5. Verify the Installation:
 
     ```powershell
@@ -731,11 +806,11 @@ kubectl patch deployment metrics-server -n kube-system --type='json' -p='[   {  
     * **Purpose**: This command uses Apache Benchmark (ab) to simulate a load test by sending 20,000 requests with a concurrency of 200 requests to the application running at localhost:30003.
     * **Explanation**: This load test helps in understanding how the application and the metrics-server handle heavy traffic, simulating real-world usage under high load. This test will help ensure the metrics-server is able to track and report on resource usage effectively under load.
 
-### Step 3: Monitor the Kubernetes Cluster.
+### Step 4: Monitor the Kubernetes Cluster.
 
-  While ab runs the load test, use these kubectl commands to watch how your Kubernetes application scales in real-time:
+  While ab runs the load test, use these **kubectl** commands to watch how your Kubernetes application scales in real-time:
 
-  * This command is used to monitor the Horizontal Pod Autoscaler (HPA) in real-time.
+  * The following command is used to monitor the Horizontal Pod Autoscaler (HPA) in real-time.
 
     * `kubectl get hpa`: This part retrieves the current status of the Horizontal Pod Autoscaler for any deployments or pods that have an HPA configured.
     * `-w (watch)`: The -w flag tells kubectl to continuously watch for and display updates to the HPA status.
@@ -744,7 +819,7 @@ kubectl patch deployment metrics-server -n kube-system --type='json' -p='[   {  
     kubectl get hpa -w
     ```
 
-  * This command is used to monitor the status of all pods in real-time.
+  * The following command is used to monitor the status of all pods in real-time.
 
     * `kubectl get pods`: This part lists the current status of all pods in the cluster (or in a specific namespace if specified).
     * `-w (watch)`: The -w flag makes this command continuously watch for changes to the pod status in real time.
