@@ -1,5 +1,44 @@
 # Learning Kubernetes
 
+- [Learning Kubernetes](#learning-kubernetes)
+  - [Kubernetes Reasearch](#kubernetes-reasearch)
+    - [Why is Kubernetes Needed?](#why-is-kubernetes-needed)
+    - [Benefits of Kubernetes](#benefits-of-kubernetes)
+    - [Success Stories](#success-stories)
+    - [Kubernetes Architecture](#kubernetes-architecture)
+    - [What is a Cluster?](#what-is-a-cluster)
+    - [Master vs. Worker Nodes](#master-vs-worker-nodes)
+    - [Pros and Cons of Using Managed Service vs. Launching Your Own](#pros-and-cons-of-using-managed-service-vs-launching-your-own)
+    - [Control Plane vs. Data Plane](#control-plane-vs-data-plane)
+    - [Kubernetes Objects](#kubernetes-objects)
+    - [What Does it Mean a Pod is "Ephemeral"?](#what-does-it-mean-a-pod-is-ephemeral)
+    - [How to Mitigate Security Concerns with Containers](#how-to-mitigate-security-concerns-with-containers)
+    - [Maintained Images](#maintained-images)
+  - [Using Kubernetes](#using-kubernetes)
+    - [Kubernetes Setup](#kubernetes-setup)
+    - [Kubernetes Commands](#kubernetes-commands)
+    - [Creating Objects: Deployments](#creating-objects-deployments)
+    - [Creating Objects: Service](#creating-objects-service)
+  - [Task: K8s deployment of NodeJS Sparta test app](#task-k8s-deployment-of-nodejs-sparta-test-app)
+    - [Creating the application](#creating-the-application)
+      - [Step 1: Create the deployement](#step-1-create-the-deployement)
+      - [Step 2: Create the Service](#step-2-create-the-service)
+    - [Creating the database](#creating-the-database)
+      - [Step 1: Create the deployement](#step-1-create-the-deployement-1)
+      - [Step 2: Create the Service](#step-2-create-the-service-1)
+    - [Step 3: Seeding the database: Method 1](#step-3-seeding-the-database-method-1)
+    - [Step 3: Seeding the database (Manual Approach): Method 2](#step-3-seeding-the-database-manual-approach-method-2)
+  - [Task: Create 2-tier deployment with PV for database](#task-create-2-tier-deployment-with-pv-for-database)
+    - [Step 1: Create the Persistent Volume (PV)](#step-1-create-the-persistent-volume-pv)
+    - [Step 2: Create the Persistent Volume Claim (PVC)](#step-2-create-the-persistent-volume-claim-pvc)
+    - [Step 3: Create the MongoDB Deployment with the PVC](#step-3-create-the-mongodb-deployment-with-the-pvc)
+  - [Task: Research types of autoscaling with K8s](#task-research-types-of-autoscaling-with-k8s)
+  - [Task: Use Horizontal Pod Autoscaler (HPA) to scale the app](#task-use-horizontal-pod-autoscaler-hpa-to-scale-the-app)
+    - [Step 1: Creating and configuring the Horizontal Pod Autoscaler (HPA)](#step-1-creating-and-configuring-the-horizontal-pod-autoscaler-hpa)
+    - [Step 2: Setup the Metrics server](#step-2-setup-the-metrics-server)
+    - [Step 3: Load Test the Application](#step-3-load-test-the-application)
+    - [Step 4: Monitor the Kubernetes Cluster.](#step-4-monitor-the-kubernetes-cluster)
+
 ## Kubernetes Reasearch
 
 ### Why is Kubernetes Needed?
@@ -665,7 +704,7 @@ Choosing Autoscaling Strategies in Kubernetes
         matchLabels:
           app: sparta-app  # Matches pods with the label "app: sparta-app" to associate with this deployment
 
-      replicas: 3  # Number of pod replicas to start initially
+      # replicas: 3  # Number of pod replicas to start initially
       template:
         metadata:
           labels:
@@ -775,7 +814,7 @@ The Metrics Server is essential in Kubernetes for gathering real-time CPU and me
     ```powershell
     wsl --install
     ```
-2. Install Ubuntu:
+2. Install Ubuntu (if not already installed):
 
     * Open the Microsoft Store and search for Ubuntu (or another preferred Linux distribution) to install it on WSL. Once installed, open the Ubuntu app to set it up.
     * Follow the on-screen instructions to create a username and password for the Linux environment.
